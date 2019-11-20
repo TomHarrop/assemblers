@@ -3,12 +3,12 @@ From: ubuntu:18.10
 
 %help
 
-    Container for Canu 1.8
+    Container for Canu 1.9
     https://github.com/marbl/canu
 
 %labels
 
-    VERSION "Canu 1.8"
+    VERSION "Canu 1.9"
 
 %post
 
@@ -25,7 +25,7 @@ From: ubuntu:18.10
     # install Canu
     wget -O "canu.tar.gz" \
         --no-check-certificate \
-        https://github.com/marbl/canu/archive/v1.8.tar.gz
+        https://github.com/marbl/canu/archive/v1.9.tar.gz
     mkdir canu
     tar -zxf canu.tar.gz \
         -C canu \
