@@ -11,16 +11,32 @@ From: ubuntu:18.10
     VERSION "Canu 1.9"
 
 %post
+    # faster apt downloads, will it break?
+    export DEBIAN_FRONTEND=noninteractive
+    (
+        . /etc/os-release
+        cat << _EOF_ > mirror.txt
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME} main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-backports main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-security main restricted universe multiverse
+
+_EOF_
+        mv /etc/apt/sources.list /etc/apt/sources.list.bak
+        cat mirror.txt /etc/apt/sources.list.bak > /etc/apt/sources.list
+    )
 
     # dependencies
     apt-get update
     apt-get install -y \
         build-essential \
-        gnuplot \
         language-pack-en \
-        openjdk-8-jre \
+        openjdk-8-jre-headless \
         perl \
         wget
+    apt-get install -y \
+        --no-install-recommends \
+        gnuplot
 
     # install Canu
     wget -O "canu.tar.gz" \
@@ -42,6 +58,3 @@ From: ubuntu:18.10
 %runscript
 
     exec /canu/Linux-amd64/bin/canu "$@"
-
-
-
