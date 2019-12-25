@@ -1,0 +1,53 @@
+Bootstrap: docker
+From: ubuntu:18.10
+
+%help
+    Flye 2.6-g47548b8
+    https://github.com/fenderglass/Flye
+
+%labels
+    MAINTAINER "Tom Harrop"
+    VERSION "Flye 2.6-g47548b8"
+
+%post
+
+    # deps
+    apt-get clean
+    apt-get update
+    apt-get install -y \
+        build-essential \
+        git \
+        python3 \
+        python3-setuptools \
+        wget \
+        zlib1g-dev
+
+    # install flye from release
+    # mkdir Flye
+    # wget -O "Flye.tar.gz" \
+    #     --no-check-certificate \
+    #     https://github.com/fenderglass/Flye/archive/2.6.tar.gz
+    # tar -zxf Flye.tar.gz \
+    #     -C Flye \
+    #     --strip-components 1
+    # cd Flye || exit 1
+
+    # install Flye from git branch
+    git clone https://github.com/fenderglass/Flye
+    cd Flye || exit 1
+    git checkout -f 47548b8
+    git submodule update --init --recursive
+
+    # build and install flye
+    make clean && make
+
+    # python3 setup.py install
+    # cd .. || exit 1
+    # rm -r Flye.tar.gz Flye
+
+%environment
+    export LC_ALL="C"
+    export PATH="${PATH}:/Flye/bin"
+
+%runscript
+    exec /Flye/bin/flye "$@"
