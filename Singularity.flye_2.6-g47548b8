@@ -39,7 +39,7 @@ From: ubuntu:18.10
     git submodule update --init --recursive
 
     # build and install flye
-    make clean && make
+    make
 
     # python3 setup.py install
     # cd .. || exit 1
