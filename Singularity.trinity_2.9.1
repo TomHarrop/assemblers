@@ -1,0 +1,16 @@
+Bootstrap: docker
+From: trinityrnaseq/trinityrnaseq:2.9.1
+
+%help
+    Container for Trinity 2.9.1 
+    https://github.com/trinityrnaseq/trinityrnaseq
+
+
+%labels
+    VERSION "Trinity 2.9.1"
+
+%environment
+    export PATH="${PATH}:/usr/local/bin/trinityrnaseq:/usr/local/bin/trinityrnaseq/util:/usr/local/bin/trinityrnaseq/util/support_scripts:/usr/local/bin/trinityrnaseq/util/misc"
+
+%runscript
+    exec /usr/local/bin/trinityrnaseq/Trinity "$@"
