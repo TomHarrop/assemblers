@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu:18.10
+From: ubuntu:19.10
 
 %help
     Flye 2.7b-cf8c288
