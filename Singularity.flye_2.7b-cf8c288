@@ -2,12 +2,12 @@ Bootstrap: docker
 From: ubuntu:18.10
 
 %help
-    Flye 2.6-g47548b8
+    Flye 2.7b-cf8c288
     https://github.com/fenderglass/Flye
 
 %labels
     MAINTAINER "Tom Harrop"
-    VERSION "Flye 2.6-g47548b8"
+    VERSION "Flye 2.7b-cf8c288"
 
 %post
 
@@ -35,7 +35,7 @@ From: ubuntu:18.10
     # install Flye from git branch
     git clone https://github.com/fenderglass/Flye
     cd Flye || exit 1
-    git checkout -f 47548b8
+    git checkout -f cf8c288
     git submodule update --init --recursive
 
     # build and install flye
