@@ -2,13 +2,15 @@ Bootstrap: docker
 From: ubuntu:20.04
 
 %help
-
     Spades 3.14.1
     http://cab.spbu.ru/software/spades/
 
 %labels
     MAINTAINER "Tom Harrop"
     VERSION "Spades 3.14.1"
+
+%environment
+    export LC_ALL=C
 
 %post
     # variable
