@@ -1,0 +1,127 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%help
+
+    meraculous 2.2.6
+    https://jgi.doe.gov/data-and-tools/meraculous/
+
+%labels
+
+    MAINTAINER "Tom Harrop (twharrop@gmail.com)"
+    VERSION "meraculous 2.2.6"
+
+%environment
+    export LC_ALL=C
+    export PATH="${PATH}:/usr/local/upcxx/bin:/usr/local/berkeley_upc/bin"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    export LC_ALL=C
+    export PATH="${PATH}:/usr/local/upcxx/bin:/usr/local/berkeley_upc/bin"
+
+    # reset apt
+    apt-get clean
+    rm -r /var/lib/apt/lists/*
+    (
+        . /etc/os-release
+        cat << _EOF_ > mirror.txt
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME} main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-backports main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt ${UBUNTU_CODENAME}-security main restricted universe multiverse
+
+_EOF_
+        mv /etc/apt/sources.list /etc/apt/sources.list.bak
+        cat mirror.txt /etc/apt/sources.list.bak > /etc/apt/sources.list
+    )
+
+    apt-get update
+    apt-get upgrade -y --fix-missing
+
+    # install dependencies
+    apt-get update
+    apt-get install -y \
+        automake \
+        build-essential \
+        cmake \
+        curl \
+        git \
+        libopenmpi-dev \
+        python-is-python2 \
+        wget \
+        zlib1g-dev
+
+
+    # set up berkeley upc
+    mkdir /bupc
+    wget -O "/bupc.tar.gz" \
+        --no-check-certificate \
+        https://upc.lbl.gov/download/release/berkeley_upc-2021.4.0.tar.gz
+    tar -zxf /bupc.tar.gz \
+        -C /bupc \
+        --strip-components 1
+    rm /bupc.tar.gz
+
+    cd /bupc || exit 1
+    ls -lh
+    ./Bootstrap
+    mkdir build
+    cd build || exit 1
+    ../configure
+    make
+    make install
+
+    mkdir /bupcpp
+    wget -O "/bupcpp.tar.gz" \
+        --no-check-certificate \
+        https://bitbucket.org/berkeleylab/upcxx/downloads/upcxx-2021.3.0.tar.gz
+    tar -zxf /bupcpp.tar.gz \
+        -C /bupcpp \
+        --strip-components 1
+    rm /bupcpp.tar.gz
+
+    cd /bupcpp || exit 1
+    mkdir build
+    cd build || exit 1
+    ../configure
+    make
+    make install
+
+    # download hipmer
+    mkdir /hipmer
+    wget -O "/HipMer.tar.gz" \
+        --no-check-certificate \
+        https://sourceforge.net/projects/hipmer/files/HipMer-1.2.2.tar.gz
+    tar -zxf /HipMer.tar.gz \
+        -C /hipmer \
+        --strip-components 1
+    cd /hipmer || exit 1
+
+    # build
+    exit 0
+
+    mkdir build
+    cd build || exit 1
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+    make install
+
+    # build and install
+
+    mkdir build && cd build || exit 1
+    export BOOST_ROOT=/usr/include/boost
+    cmake \
+        -DCMAKE_C_COMPILER=/usr/bin/gcc-6 \
+        -DCMAKE_CXX_COMPILER=/usr/bin/g++-6 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        ..
+    make && make install
+
+    # tidy up
+    cd ../../ || exit 1
+    rm -rf mer mer.tar.gz
+
+%runscript
+
+    exec /usr/local/bin/run_meraculous.sh "$@"
