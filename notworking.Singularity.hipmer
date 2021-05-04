@@ -13,12 +13,13 @@ From: ubuntu:20.04
 
 %environment
     export LC_ALL=C
-    export PATH="${PATH}:/usr/local/upcxx/bin:/usr/local/berkeley_upc/bin"
+    export PATH="${PATH}:/usr/local/upcxx/bin:/bupc/upcr/bin"
+    # export PATH="${PATH}:/usr/local/upcxx/bin:/usr/local/berkeley_upc/bin"
 
 %post
     export DEBIAN_FRONTEND=noninteractive
     export LC_ALL=C
-    export PATH="${PATH}:/usr/local/upcxx/bin:/usr/local/berkeley_upc/bin"
+    export PATH="${PATH}:/usr/local/upcxx/bin:/bupc/upcr/bin"
 
     # reset apt
     apt-get clean
@@ -40,6 +41,7 @@ _EOF_
     apt-get upgrade -y --fix-missing
 
     # install dependencies
+    # python-is-python2 on later ubuntus
     apt-get update
     apt-get install -y \
         automake \
@@ -48,10 +50,27 @@ _EOF_
         curl \
         git \
         libopenmpi-dev \
-        python-is-python2 \
+        python \
         wget \
         zlib1g-dev
 
+
+    # clang upc... nope
+    # mkdir /clang-upc
+    # wget -O "/clang-upc.tar.gz" \
+    #     --no-check-certificate \
+    #     https://github.com/Intrepid/clang-upc/releases/download/clang-upc-3.9.1-1/clang-upc-all-3.9.1-1.tar.gz
+    # tar -zxf /clang-upc.tar.gz \
+    #     -C /clang-upc \
+    #     --strip-components 1
+    # rm /clang-upc.tar.gz
+    # cd /clang-upc
+
+    # mkdir build
+    # cd build || exit 1
+    # cmake ..
+    # make
+    # make install
 
     # set up berkeley upc
     mkdir /bupc
@@ -64,28 +83,31 @@ _EOF_
     rm /bupc.tar.gz
 
     cd /bupc || exit 1
-    ls -lh
-    ./Bootstrap
-    mkdir build
-    cd build || exit 1
-    ../configure
-    make
-    make install
+    bash contrib/cupc2c-install.sh -j 30
 
-    mkdir /bupcpp
-    wget -O "/bupcpp.tar.gz" \
+    # ./Bootstrap
+    # mkdir build
+    # cd build || exit 1
+    # ../configure \
+    #     CUPC2C_TRANS=<PATH_TO_UPC2C> \
+    #     --with-multiconf=+dbg_cupc2c,+opt_cupc2c
+    # make -j30
+    # make install
+
+    mkdir /bupcxx
+    wget -O "/bupcxx.tar.gz" \
         --no-check-certificate \
         https://bitbucket.org/berkeleylab/upcxx/downloads/upcxx-2021.3.0.tar.gz
-    tar -zxf /bupcpp.tar.gz \
-        -C /bupcpp \
+    tar -zxf /bupcxx.tar.gz \
+        -C /bupcxx \
         --strip-components 1
-    rm /bupcpp.tar.gz
+    rm /bupcxx.tar.gz
 
-    cd /bupcpp || exit 1
+    cd /bupcxx || exit 1
     mkdir build
     cd build || exit 1
     ../configure
-    make
+    make -j30
     make install
 
     # download hipmer
@@ -101,10 +123,14 @@ _EOF_
     # build
     exit 0
 
+    # contrib/install_upc.sh contrib/install_upc.sh smp posix
+
     mkdir build
     cd build || exit 1
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
     make install
+
+    # tidy up (remove source dirs)
 
     # build and install
 
